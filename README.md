@@ -13,14 +13,6 @@ Whether you're a beginner or an experienced Kubernetes user, this guide is desig
 - **Application Deployment**: Build, push, and deploy a Flask app using Helm.
 - **Cluster Reset**: Instructions for safely resetting the RKE2 cluster.
 
-## Getting Started
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/your-repo/rke2-kubernetes-setup.git
-   cd rke2-kubernetes-setup
-   ```
-2. Follow the instructions in the [main guide](docs/setup-guide.md) to set up your RKE2 cluster.
-3. Explore the provided YAML files and Helm charts in the `examples/` directory.
 
 ## Prerequisites
 - A Linux-based system (Ubuntu recommended).
