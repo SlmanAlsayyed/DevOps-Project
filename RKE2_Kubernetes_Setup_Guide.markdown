@@ -695,4 +695,3 @@ sudo systemctl restart rke2-server.service
 - [MetalLB Documentation](https://metallb.universe.tf/)
 - [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/)
 - [Helm Documentation](https://helm.sh/docs/)
-- [GitHub Repository](https://github.com/your-repo/rke2-kubernetes-setup)
