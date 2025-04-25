@@ -32,8 +32,6 @@ Refer to the detailed instructions in the [setup guide](docs/setup-guide.md) for
 ## Contributing
 Contributions are welcome! Feel free to open issues or submit pull requests to improve the guide or add new features.
 
-## License
-This project is licensed under the [MIT License](LICENSE).
 
 ## References
 - [RKE2 Documentation](https://docs.rke2.io/)
