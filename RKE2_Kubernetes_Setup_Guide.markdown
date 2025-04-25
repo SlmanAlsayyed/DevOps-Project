@@ -2,7 +2,7 @@
 
 This guide provides detailed instructions for setting up an RKE2 Kubernetes cluster, including server and worker node installation, K9s for cluster management, MetalLB for load balancing, Uptime Kuma for monitoring, NGINX Ingress for routing, and deploying a Flask demo application using a Helm chart. It also covers pushing a Docker image to Docker Hub and resetting the cluster.
 
-For additional resources, visit the [GitHub repository](https://github.com/your-repo/rke2-kubernetes-setup).
+
 
 ## Table of Contents
 - [Install RKE2 Server](#install-rke2-server)
