@@ -1,9 +1,6 @@
-# DevOps-Project
-
 RKE2 Kubernetes Cluster Setup Guide
-This guide provides step-by-step instructions for setting up an RKE2 Kubernetes cluster, including server and worker node installation, K9s for cluster management, MetalLB for load balancing, Uptime Kuma for monitoring, NGINX Ingress for routing, and deploying a Flask demo application using a Helm chart. The guide also covers pushing a Docker image to Docker Hub and resetting the cluster if needed.
-For additional resources and code, refer to the GitHub repository.
-
+This guide provides detailed instructions for setting up an RKE2 Kubernetes cluster, including server and worker node installation, K9s for cluster management, MetalLB for load balancing, Uptime Kuma for monitoring, NGINX Ingress for routing, and deploying a Flask demo application using a Helm chart. It also covers pushing a Docker image to Docker Hub and resetting the cluster.
+For additional resources, visit the GitHub repository.
 Table of Contents
 
 Install RKE2 Server
@@ -18,39 +15,38 @@ Reset RKE2 Cluster
 
 
 Install RKE2 Server
-Step 1: Download and Install RKE2
+1. Download and Install RKE2
 curl -sfL https://get.rke2.io | sh -
 
-Step 2: Enable and Start RKE2 Server
+2. Enable and Start RKE2 Server
 systemctl enable rke2-server.service
 systemctl start rke2-server.service
 
-Step 3: Monitor Logs
+3. Monitor Logs
 journalctl -u rke2-server -f
 
-Step 4: Configure Permissions for Kubeconfig
+4. Configure Kubeconfig Permissions
 sudo chown -h slman:slman ~/.kube/config
 
-Step 5: Retrieve Node Token
+5. Retrieve Node Token
 sudo cat /var/lib/rancher/rke2/server/node-token
 
-Step 6: Configure kubectl
-Set up the kubeconfig and add kubectl to the PATH:
+6. Configure kubectl
 export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
 echo 'export PATH=$PATH:/var/lib/rancher/rke2/bin' >> ~/.bashrc
 source ~/.bashrc
 
-Step 7: Verify Cluster
+7. Verify Cluster
 kubectl get nodes
 
 
 Install RKE2 Worker Node
-Step 1: Install RKE2 Agent
+1. Install RKE2 Agent
 curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE="agent" sh -
 systemctl enable rke2-agent.service
 
-Step 2: Configure Agent
-Create the configuration directory and file:
+2. Configure Agent
+Create and edit the configuration file:
 mkdir -p /etc/rancher/rke2/
 nano /etc/rancher/rke2/config.yaml
 
@@ -58,38 +54,38 @@ Add the following to config.yaml:
 server: https://<MASTER_NODE_IP>:9345
 token: <YOUR_NODE_TOKEN>
 
-Step 3: Start RKE2 Agent
+3. Start RKE2 Agent
 systemctl start rke2-agent.service
 
 
 Install K9s
-Step 1: Download K9s
+1. Download K9s
 wget https://github.com/derailed/k9s/releases/download/v0.32.5/k9s_Linux_amd64.tar.gz
 
-Step 2: Extract and Install
+2. Extract and Install
 tar -xzf k9s_Linux_amd64.tar.gz
 sudo mv k9s /usr/local/bin/
 sudo chmod +x /usr/local/bin/k9s
 
-Step 3: Verify Installation
+3. Verify Installation
 k9s version
 
-Step 4: Run K9s with RKE2
+4. Run K9s
 KUBECONFIG=/etc/rancher/rke2/rke2.yaml k9s
 
-To persist the kubeconfig, add it to your shell profile:
+To persist the kubeconfig:
 echo 'export KUBECONFIG=/etc/rancher/rke2/rke2.yaml' >> ~/.bashrc
 source ~/.bashrc
 
 
 Install MetalLB
-Step 1: Apply MetalLB Manifest
+1. Apply MetalLB Manifest
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
 
-Step 2: Verify MetalLB Pods
+2. Verify Pods
 kubectl get pods -n metallb-system
 
-Step 3: Configure IPAddressPool
+3. Configure IPAddressPool
 Create metallb-ip-pool.yaml:
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
@@ -102,10 +98,10 @@ spec:
   autoAssign: true
   avoidBuggyIPs: false
 
-Apply the configuration:
+Apply it:
 kubectl apply -f metallb-ip-pool.yaml
 
-Step 4: Configure L2Advertisement
+4. Configure L2Advertisement
 Create metallb-l2.yaml:
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
@@ -119,23 +115,22 @@ spec:
   - matchLabels:
       kubernetes.io/hostname: slman11-c36bde5a
 
-Apply the configuration:
+Apply it:
 kubectl apply -f metallb-l2.yaml
 
-Step 5: Verify Configuration
+5. Verify Configuration
 kubectl get ipaddresspool -n metallb-system
 kubectl get l2advertisement -n metallb-system
 
 
 Install Uptime Kuma
-Step 1: Prepare Storage on Worker Node
+1. Prepare Storage
 sudo mkdir -p /var/lib/rancher/rke2/storage
 sudo chmod -R 777 /var/lib/rancher/rke2/storage
 sudo chown -R nobody:nogroup /var/lib/rancher/rke2/storage
 
-Step 2: Apply Uptime Kuma Manifest
+2. Apply Uptime Kuma Manifest
 Create uptime-kuma.yaml:
----
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -226,31 +221,31 @@ spec:
     targetPort: 3001
   type: LoadBalancer
 
-Apply the manifest:
+Apply it:
 kubectl apply -f uptime-kuma.yaml
 
-Step 3: Verify Installation
+3. Verify Installation
 kubectl get pods -n uptime-kuma
 kubectl get svc -n uptime-kuma
 kubectl get pv,pvc -n uptime-kuma
 
 
 Install NGINX Ingress
-Step 1: Apply NGINX Ingress Manifest
+1. Apply NGINX Ingress Manifest
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/baremetal/deploy.yaml
 
-Step 2: Verify NGINX Ingress Pods
+2. Verify Pods
 kubectl get pods -n ingress-nginx
 
-Step 3: Expose NGINX Ingress with MetalLB
-Edit the ingress-nginx-controller service to use LoadBalancer:
+3. Expose with MetalLB
+Edit the service to use LoadBalancer:
 export EDITOR=nano
 kubectl edit svc ingress-nginx-controller -n ingress-nginx
 
-Verify the service:
+Verify:
 kubectl get svc -n ingress-nginx
 
-Step 4: Deploy Sample Applications
+4. Deploy Sample Applications
 Create nginx-app.yaml:
 apiVersion: apps/v1
 kind: Deployment
@@ -315,11 +310,11 @@ spec:
   - port: 80
     targetPort: 80
 
-Apply the manifests:
+Apply them:
 kubectl apply -f nginx-app.yaml
 kubectl apply -f apache-app.yaml
 
-Step 5: Create Ingress Resource
+5. Create Ingress
 Create ingress.yaml:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -348,10 +343,10 @@ spec:
             port:
               number: 80
 
-Apply the manifest:
+Apply it:
 kubectl apply -f ingress.yaml
 
-Step 6: Test the Setup
+6. Test the Setup
 Add the Ingress IP to /etc/hosts:
 sudo echo "<INGRESS_EXTERNAL_IP> domain.com" >> /etc/hosts
 
@@ -361,38 +356,35 @@ curl http://domain.com/bar
 
 
 Push Docker Image to Docker Hub
-Step 1: Clone and Build the Flask Demo App
+1. Clone and Build Flask App
 git clone https://github.com/nexgtech/flask-demo-app.git
 cd flask-demo-app
 docker build -t slmann/flask-demo-app:latest .
 
-Step 2: Verify the Image
+2. Verify Image
 docker images
 
-Step 3: Test the Image Locally
+3. Test Locally
 docker run -d -p 5000:8080 --name flask-demo slmann/flask-demo-app:latest
 curl http://localhost:5000/
 
-Step 4: Push to Docker Hub
-Login to Docker Hub:
+4. Push to Docker Hub
 docker login
-
-Push the image:
 docker push slmann/flask-demo-app:latest
 
 
 Deploy Flask Demo App with Helm
-Step 1: Install Helm
+1. Install Helm
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 chmod +x get_helm.sh
 ./get_helm.sh
 helm version
 
-Step 2: Create Helm Chart
+2. Create Helm Chart
 helm create flask-demo-app
 
-Step 3: Modify Helm Chart Files
-Update the following files in flask-demo-app/:
+3. Modify Helm Files
+Update the following in flask-demo-app/:
 Chart.yaml:
 apiVersion: v2
 name: flask-demo-app
@@ -547,27 +539,24 @@ spec:
     {{- end }}
 {{- end }}
 
-Step 4: Deploy the Helm Chart
+4. Deploy Helm Chart
 helm install flask-demo-app .
 
-Step 5: Verify Deployment
+5. Verify Deployment
 kubectl get pods
 kubectl get svc
-
-Test the service:
 curl <CLUSTER_IP>
 
-Step 6: Update to Use LoadBalancer
-Modify values.yaml to change service.type to LoadBalancer, then upgrade:
+6. Use LoadBalancer
+Update values.yaml to set service.type: LoadBalancer, then:
 helm upgrade flask-demo-app .
 
-Verify the external IP:
+Verify:
 kubectl get svc
 curl <EXTERNAL_IP>
 
 
 Reset RKE2 Cluster
-To reset the RKE2 cluster and rebuild the etcd database:
 sudo rke2 server --cluster-reset
 sudo systemctl restart rke2-server.service
 
@@ -578,5 +567,5 @@ RKE2 Documentation
 MetalLB Documentation
 NGINX Ingress Controller
 Helm Documentation
-GitHub Repository for this Guide
+GitHub Repository
 
