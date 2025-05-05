@@ -34,27 +34,29 @@ systemctl start rke2-server.service
 ```bash
 journalctl -u rke2-server -f
 ```
-
-### 4. Configure Kubeconfig Permissions
+### 4. Check RKE2 is work
 ```bash
-sudo chown -h slman:slman ~/.kube/config
+sudo /var/lib/rancher/rke2/bin/kubectl --kubeconfig /etc/rancher/rke2/rke2.yaml get nodes
 ```
-
-### 5. Retrieve Node Token
+### 5. Configure Kubeconfig Permissions
 ```bash
-sudo cat /var/lib/rancher/rke2/server/node-token
+sudo cp /etc/rancher/rke2/rke2.yaml ~/.kube/config
+sudo chown $(whoami):$(whoami) ~/.kube/config
 ```
 
 ### 6. Configure kubectl
 ```bash
-export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
-echo 'export PATH=$PATH:/var/lib/rancher/rke2/bin' >> ~/.bashrc
+echo 'export KUBECONFIG=/etc/rancher/rke2/rke2.yaml' >> ~/.bashrc
 source ~/.bashrc
 ```
 
 ### 7. Verify Cluster
 ```bash
 kubectl get nodes
+```
+### 8. Retrieve Node Token
+```bash
+sudo cat /var/lib/rancher/rke2/server/node-token
 ```
 
 ---
